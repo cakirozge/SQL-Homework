@@ -1,0 +1,121 @@
+
+--61. En çok satılan ürünümün(adet bazında) adı, kategorisinin adı ve tedarikçisinin adı
+SELECT product_name,category_name,company_name from products
+Inner Join order_details on products.product_id=order_details.product_id
+Inner Join categories on categories.category_id=products.category_id
+Inner Join suppliers on suppliers.supplier_id=products.supplier_id
+where quantity =(select MAX(quantity) from order_details ) ;
+
+--62.Kaç ülkeden müşterim var
+SELECT * from Customers
+SELECT COUNT (Country) From Customers;
+
+--63. Hangi ülkeden kaç müşterimiz var
+select COUNT(*), country FROM customers
+GROUP BY country
+ORDER BY COUNT(*);
+
+--64. 3 numaralı ID ye sahip çalışan (employee) son Ocak ayından BUGÜNE toplamda ne kadarlık ürün sattı?
+select SUM(od.unit_price*od.quantity) AS totalPrice FROM orders o
+INNER JOIN order_details od
+ON od.order_id = o.order_id
+WHERE o.employee_id=3  AND o.order_date >= '1998.01.01' AND  o.order_date < CURRENT_DATE;
+
+
+--65. 10 numaralı ID ye sahip ürünümden son 3 ayda ne kadarlık ciro sağladım?
+SELECT order_date From orders
+SELECT SUM(od.unit_price*od.quantity) AS totalGiro FROM order_details od
+INNER JOIN orders o 
+ON od.order_id = o.order_id
+INNER JOIN products p 
+ON od.product_id = p.product_id
+where p.product_id=10  AND o.order_date >= '1998.03.01' AND  o.order_date < '1998.06.01';
+
+
+--66. Hangi çalışan şimdiye kadar toplam kaç sipariş almış..?
+select e.first_name, COUNT(o.order_id) AS siparis  FROM employees e
+INNER JOIN orders o ON o.employee_id = e.employee_id
+WHERE o.order_date <= CURRENT_DATE
+GROUP BY e.first_name
+ORDER BY COUNT(o.order_id);
+
+--67. 91 müşterim var. Sadece 89’u sipariş vermiş. Sipariş vermeyen 2 kişiyi bulun
+
+SELECT c.company_name, od.quantity,o.order_date FROM orders o
+RIGHT JOIN order_details od  ON od.order_id=o.order_id
+FULL OUTER JOIN customers c ON c.customer_id=o.customer_id
+where od.quantity is null;
+
+
+--68. Brazil’de bulunan müşterilerin Şirket Adı, TemsilciAdi, Adres, Şehir, Ülke bilgileri
+SELECT company_name,contact_name, address ,city,country FROM customers
+where country = 'Brazil'
+
+--69. Brezilya’da olmayan müşteriler
+SELECT contact_name,Country FROM customers
+Where not country ='Brazil'
+
+--70. Ülkesi (Country) YA Spain, Ya France, Ya da Germany olan müşteriler
+SELECT Contact_name, country FROM customers
+Where country ='Spain' OR Country='France' OR Country='Germany'
+
+--71. Faks numarasını bilmediğim müşteriler
+SELECT Contact_name , fax From customers
+Where Fax is NULL;
+
+--72. Londra’da ya da Paris’de bulunan müşterilerim
+SELECT  City FROM customers
+SELECT Contact_name, country , City FROM customers
+Where city ='London' OR  City='Paris' ;
+
+--73. Hem Mexico D.F’da ikamet eden HEM DE ContactTitle bilgisi ‘owner’ olan müşteriler
+SELECT Contact_name, contact_title , city  FROM customers 
+where contact_title = 'Owner' AND City = 'México D.F.';
+
+--74. C ile başlayan ürünlerimin isimleri ve fiyatları
+SELECT product_name,unit_price FROM products
+where product_name like 'C%';
+
+--75. Adı (FirstName) ‘A’ harfiyle başlayan çalışanların (Employees); Ad, Soyad ve Doğum Tarihleri
+SELECT first_name , last_name ,birth_date FROM employees
+where first_name like 'A%';
+
+--76. İsminde ‘RESTAURANT’ geçen müşterilerimin şirket adları
+SELECT company_name, contact_name FROM customers
+where company_name like '%Restaurant%';
+
+--77. 50$ ile 100$ arasında bulunan tüm ürünlerin adları ve fiyatları
+SELECT product_name,unit_price FROM products
+where unit_price BETWEEN 50 AND 100 ;
+
+--78. 1 temmuz 1996 ile 31 Aralık 1996 tarihleri arasındaki siparişlerin (Orders), SiparişID (OrderID) ve SiparişTarihi (OrderDate) bilgileri
+SELECT order_id , order_date FROM orders
+where order_date >= '1996-07-01' AND order_date < '1996-12-31' ;
+
+--79. Ülkesi (Country) YA Spain, Ya France, Ya da Germany olan müşteriler
+SELECT Contact_name, country FROM customers
+Where country ='Spain' OR Country='France' OR Country='Germany'
+
+--80. Faks numarasını bilmediğim müşteriler
+SELECT Contact_name , fax From customers
+Where Fax is NULL;
+
+--81. Müşterilerimi ülkeye göre sıralıyorum:
+SELECT c.contact_name , c.country From Customers c
+ORDER BY c.country ;
+
+--82. Ürünlerimi en pahalıdan en ucuza doğru sıralama, sonuç olarak ürün adı ve fiyatını istiyoruz
+SELECT product_name , unit_price From Products
+ORDER BY unit_price DESC ;
+
+--83. Ürünlerimi en pahalıdan en ucuza doğru sıralasın, ama stoklarını küçükten-büyüğe doğru göstersin sonuç olarak ürün adı ve fiyatını istiyoruz
+SELECT product_name , unit_price , units_in_stock From Products
+ORDER BY unit_price DESC ;
+SELECT product_name , unit_price , units_in_stock From Products
+ORDER BY units_in_stock ASC ;
+
+--84. 1 Numaralı kategoride kaç ürün vardır..?
+SELECT COUNT(*) FROM products WHERE category_id=1
+
+--85. Kaç farklı ülkeye ihracat yapıyorum..?
+SELECT COUNT(DISTINCT(ship_country))FROM orders
